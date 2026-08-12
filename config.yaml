@@ -1,0 +1,4 @@
+storage:
+  srv_path: "./srv"
+  srv_db_name: "service.db"
+  usr_path: "./usr"
