@@ -1,4 +1,4 @@
 storage:
-  srv_path: "./srv"
+  srv_path: "etc/srv"
   srv_db_name: "service.db"
-  usr_path: "./usr"
+  usr_path: "etc/usr"

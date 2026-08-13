@@ -1,9 +1,8 @@
 package service
 
 import (
-	"database/sql"
 	"fmt"
-
+	"database/sql"
 	_ "modernc.org/sqlite"
 )
 

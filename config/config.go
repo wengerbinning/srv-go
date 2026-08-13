@@ -17,9 +17,9 @@ type Config struct {
 
 func Default() *Config {
 	cfg := &Config{}
-	cfg.Storage.SrvPath = "./srv"
+	cfg.Storage.SrvPath = "./etc/srv"
 	cfg.Storage.SrvDbName = "service.db"
-	cfg.Storage.UsrPath = "./usr"
+	cfg.Storage.UsrPath = "./etc/usr"
 	return cfg
 }
 
