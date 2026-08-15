@@ -2,3 +2,10 @@ storage:
   srv_path: "etc/srv"
   srv_db_name: "service.db"
   usr_path: "etc/usr"
+
+log:
+  stdio: true
+  file: true
+  file_path: "etc/log"
+  syslog: false
+  systag: "srv"

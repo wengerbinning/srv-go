@@ -1,7 +1,7 @@
-读取配置
-检查环境
-* 初始化
-
+读取配置 - 读取默认/系统/用户配置
+检查环境 - 检查服务/用户数据库，日志
+数据管理 -
+日志管理 -
 
 
 
@@ -9,3 +9,41 @@
 * 创建用户
 * 删除用户
 * 修改用户
+
+
+
+
+
+* 确认数据库是否存在
+*
+
+
+
+create
+delete
+
+
+Database
+DataTable
+DataTitle
+DataEntry
+
+
+
+
+* 连接数据库
+* 断开数据库
+* 创建数据库
+* 删除数据库
+
+
+connect
+
+InitDataBase()
+exitDataBase()
+createDataBase()
+deleteDataBase()
+
+
+Interface
+UserInterface
