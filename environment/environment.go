@@ -18,10 +18,15 @@ func PrepareService(conf *config.Conf) (*service.Context, error) {
 	}
 
 	dbPath := filepath.Join(conf.Storage.SrvPath, conf.Storage.SrvDbName)
-	db, err := database.EnsureDatabase(dbPath)
+	sqllite, _ := database.SQLliteConf(dbPath)
+	db, err := database.DataBaseInit(sqllite)
 	if err != nil {
 		return nil, fmt.Errorf("database: %w", err)
 	}
 
 	return service.CreateContext(conf, db)
+}
+
+func ClearupService(ctx *service.Context) error {
+	return service.DeleteContext(ctx)
 }

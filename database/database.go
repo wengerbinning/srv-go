@@ -1,67 +1,17 @@
 package database
 
 import (
-	"os"
 	"fmt"
-	"errors"
 	"database/sql"
-	"path/filepath"
-
-	_ "modernc.org/sqlite"
 )
-
-func EnsureDatabase(dbPath string) (*sql.DB, error) {
-	absPath, err := filepath.Abs(dbPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve db path: %w", err)
-	}
-
-	_, err = os.Stat(absPath)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			fmt.Printf("Database not found at %s, creating...\n", absPath)
-		} else {
-			return nil, fmt.Errorf("failed to check database: %w", err)
-		}
-	} else {
-		fmt.Printf("Database already exists at %s\n", absPath)
-	}
-
-	db, err := sql.Open("sqlite", absPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
-	}
-
-	if err := dbUserInitSchema(db); err != nil {
-		return nil, fmt.Errorf("failed to init schema: %w", err)
-	}
-
-	return db, nil
-}
-
-func CloseDatabase(db *sql.DB) error {
-	if db == nil {
-		return nil
-	}
-	if err := db.Close(); err != nil {
-		return fmt.Errorf("failed to close database: %w", err)
-	}
-	return nil
-}
-
 
 type Type int
 
 const (
-    Default Type = iota
-    SQLlite
-    MySQL
+	Default Type = iota
+	SQLlite
+	MySQL
 )
-
 
 type Conf struct {
 	Dbtype   Type
@@ -71,19 +21,44 @@ type Conf struct {
 	DbName string
 }
 
-type Context struct {
+type DataBase struct {
 	Name string
 	conf Conf
-	db   *sql.DB
+	db *sql.DB
+	create bool
 }
 
-func (ctx *Context) Close() error {
-	return CloseDatabase(ctx.db)
+
+func DataBaseInit(conf *Conf) (* DataBase, error) {
+	switch(conf.Dbtype) {
+	case SQLlite:
+		return drvSQLliteInit(conf)
+	}
+
+	return nil, fmt.Errorf("failed to close database:")
+}
+
+func DataBaseExit(ctx *DataBase) error {
+	switch(ctx.conf.Dbtype) {
+	case SQLlite:
+		return drvSQLliteExit(ctx)
+	}
+
+	return nil
+}
+
+
+func DataBaseExpoort(ctx *DataBase) (string, error) {
+	return "", nil
+}
+
+func DataBaseImport(ctx *DataBase) error {
+	return nil
 }
 
 type Interface interface {
-	Init(conf *Conf) (*Context, error)
-	Exit(ctx *Context) error
+	Init(conf *Conf) (*DataBase, error)
+	Exit(ctx *DataBase) error
 	CreateDatabase()
 	DeleteDataBase()
 }

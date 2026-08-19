@@ -1,15 +1,15 @@
 package service
 
 import (
-	"database/sql"
 	"github.com/wengerbinning/srv/log"
 	"github.com/wengerbinning/srv/config"
+	"github.com/wengerbinning/srv/database"
 )
 
 type Context struct {
 	conf *config.Conf
-	db   *sql.DB
-	log  log.Interface
+	log   log.Interface
+	db   *database.DataBase
 }
 
 func logConf(conf *config.Conf) *log.Conf {
@@ -22,16 +22,20 @@ func logConf(conf *config.Conf) *log.Conf {
 	}
 }
 
-func CreateContext(conf *config.Conf, db *sql.DB) (*Context, error) {
-	logger, err := log.CreateLog(logConf(conf), "srvlog")
+func CreateContext(conf *config.Conf, db *database.DataBase) (*Context, error) {
+	logger, err := log.CreateLog(logConf(conf), "srv")
 	if err != nil {
 		return nil, err
 	}
-
+	logger.Debug("create service was finised")
 	return &Context{conf: conf, db: db, log: logger}, nil
 }
 
 func DeleteContext(s *Context) error {
+	if s.db != nil {
+		database.DataBaseExit(s.db)
+	}
+	s.log.Debug("delete service was finished")
 	return s.log.Close()
 }
 
@@ -48,6 +52,14 @@ func (s *Context) Log(level log.Level, format string, v ...any) {
 	case log.Debug:
 		s.log.Debug(format, v...)
 	}
+}
+
+func (s *Context) Export() error {
+	return nil
+}
+
+func (s *Context) Import() error {
+	return nil
 }
 
 func (s *Context) Close() error {

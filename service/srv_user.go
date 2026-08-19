@@ -2,21 +2,29 @@ package service
 
 import (
 	"fmt"
-	"database/sql"
 	"github.com/wengerbinning/srv/log"
 	"github.com/wengerbinning/srv/database"
 )
 
 type UserContext struct {
-	db  *sql.DB
+	db  *database.DataBase
 	log log.Interface
 }
+
+type Scope int
+
+const (
+	System Scope = iota
+	Service
+	Default
+)
 
 type User struct {
 	Uuid      int64
 	Username string
 	Email    string
 	Password string
+	Scope       int
 }
 
 type UserInterface interface {
@@ -44,7 +52,7 @@ func dbUser(entry *database.UserEntry) *User {
 	}
 }
 
-func UserRegistrate(db *sql.DB, username, email, password string) (*User, error) {
+func UserRegistrate(db *database.DataBase, username, email, password string) (*User, error) {
 	param := database.NewUserParam(username, password, email)
 	entry, err := database.DbUserAdd(db, param)
 	if err != nil {
@@ -53,7 +61,7 @@ func UserRegistrate(db *sql.DB, username, email, password string) (*User, error)
 	return dbUser(entry), nil
 }
 
-func UserChangerate(db *sql.DB, uuid int64, username, email, password string) (*User, error) {
+func UserChangerate(db *database.DataBase, uuid int64, username, email, password string) (*User, error) {
 	entry := database.NewUserEntry(uuid, username, password, email)
 	entry, err := database.DbUserMod(db, entry)
 	if err != nil {
@@ -62,7 +70,7 @@ func UserChangerate(db *sql.DB, uuid int64, username, email, password string) (*
 	return dbUser(entry), nil
 }
 
-func UserCancellate(db *sql.DB, uuid int64) error {
+func UserCancellate(db *database.DataBase, uuid int64) error {
 	entry := database.NewUserEntry(uuid, "", "", "")
 	err := database.DbUserDel(db, entry)
 	if err != nil {

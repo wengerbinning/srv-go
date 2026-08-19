@@ -20,6 +20,11 @@ type Conf struct {
 		Syslog      bool `yaml:"syslog"`
 		Systag    string `yaml:"systag"`
 	} `yaml:"log"`
+
+	User struct {
+		Root      string `yaml:"root"`
+		Default   string `yaml:"default"`
+	}
 }
 
 func Load(path string) (*Conf, error) {

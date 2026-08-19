@@ -4,9 +4,9 @@ import (
 	"io"
 	"os"
 	"fmt"
+	"time"
 	"log/syslog"
 	"path/filepath"
-	"time"
 )
 
 type Level int

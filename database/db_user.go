@@ -20,18 +20,10 @@ type UserEntry struct {
 	updatedstamp string
 }
 
-func (e *UserEntry) Uuid() int64      { return e.uuid }
-func (e *UserEntry) Username() string  { return e.username }
-func (e *UserEntry) Password() string  { return e.password }
-func (e *UserEntry) Email() string     { return e.email }
-
-func NewUserParam(username, password, email string) *UserParam {
-	return &UserParam{username: username, password: password, email: email}
-}
-
-func NewUserEntry(uuid int64, username, password, email string) *UserEntry {
-	return &UserEntry{uuid: uuid, username: username, password: password, email: email}
-}
+func (e *UserEntry) Uuid() int64      { return e.uuid     }
+func (e *UserEntry) Username() string { return e.username }
+func (e *UserEntry) Password() string { return e.password }
+func (e *UserEntry) Email() string    { return e.email    }
 
 func dbUserInitSchema(db *sql.DB) error {
 	createTable := `
@@ -50,8 +42,16 @@ func dbUserInitSchema(db *sql.DB) error {
 	return nil
 }
 
-func DbUserAdd(db *sql.DB, param *UserParam) (*UserEntry, error) {
-	result, err := db.Exec(
+func NewUserParam(username, password, email string) *UserParam {
+	return &UserParam{username: username, password: password, email: email}
+}
+
+func NewUserEntry(uuid int64, username, password, email string) *UserEntry {
+	return &UserEntry{uuid: uuid, username: username, password: password, email: email}
+}
+
+func DbUserAdd(ctx *DataBase, param *UserParam) (*UserEntry, error) {
+	result, err := ctx.db.Exec(
 		"INSERT INTO users (username, password, email) VALUES (?, ?, ?)",
 		param.username, param.password, param.email,);
 	if err != nil {
@@ -69,8 +69,8 @@ func DbUserAdd(db *sql.DB, param *UserParam) (*UserEntry, error) {
 	}, nil
 }
 
-func DbUserMod(db *sql.DB, entry *UserEntry) (*UserEntry, error) {
-	result, err := db.Exec(
+func DbUserMod(ctx *DataBase, entry *UserEntry) (*UserEntry, error) {
+	result, err := ctx.db.Exec(
 		"UPDATE users SET username = ?, password = ?, email = ?, updatedstamp = CURRENT_TIMESTAMP WHERE id = ?",
 		entry.username, entry.password, entry.email, entry.uuid,
 	)
@@ -92,8 +92,8 @@ func DbUserMod(db *sql.DB, entry *UserEntry) (*UserEntry, error) {
 	}, nil
 }
 
-func DbUserDel(db *sql.DB, entry *UserEntry) error {
-	result, err := db.Exec("DELETE FROM users WHERE id = ?", entry.uuid)
+func DbUserDel(ctx *DataBase, entry *UserEntry) error {
+	result, err := ctx.db.Exec("DELETE FROM users WHERE id = ?", entry.uuid)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
@@ -109,44 +109,59 @@ func DbUserDel(db *sql.DB, entry *UserEntry) error {
 	return nil
 }
 
-func DbUserSearch(db *sql.DB, param *UserParam) (*UserEntry, error) {
+func DbUserSearch(ctx *DataBase, param *UserParam) ([]*UserEntry, error) {
 	var argvs []any
 	var conds []string
-	query := "SELECT id, username, password, email, createdstamp, updatedstamp FROM users WHERE "
+	var wildcard bool
 
-	if param.username != "" {
-		conds = append(conds, "username = ?")
-		argvs = append(argvs, param.username)
+	addCond := func(field, value string) {
+		if value == "*" {
+			wildcard = true
+			return
+		}
+		if value != "" {
+			conds = append(conds, field+" = ?")
+			argvs = append(argvs, value)
+		}
 	}
-	if param.password != "" {
-		conds = append(conds, "password = ?")
-		argvs = append(argvs, param.password)
-	}
-	if param.email != "" {
-		conds = append(conds, "email = ?")
-		argvs = append(argvs, param.email)
-	}
-	if len(conds) == 0 {
+	addCond("username", param.username)
+	addCond("password", param.password)
+	addCond("email", param.email)
+
+	if len(conds) == 0 && !wildcard {
 		return nil, fmt.Errorf("at least one search parameter is required")
 	}
 
-	for i, c := range conds {
-		if i > 0 {
-			query += " AND "
+	query := "SELECT id, username, password, email, createdstamp, updatedstamp FROM users"
+	if len(conds) > 0 {
+		query += " WHERE "
+		for i, c := range conds {
+			if i > 0 {
+				query += " AND "
+			}
+			query += c
 		}
-		query += c
 	}
 
-	row := db.QueryRow(query, argvs...)
-	var entry UserEntry
-	err := row.Scan(&entry.uuid,
-		&entry.username, &entry.email, &entry.password,
-		&entry.createdstamp, &entry.updatedstamp)
+	rows, err := ctx.db.Query(query, argvs...)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("user not found")
-		}
-		return nil, fmt.Errorf("failed to query user: %w", err)
+		return nil, fmt.Errorf("failed to query users: %w", err)
 	}
-	return &entry, nil
+	defer rows.Close()
+
+	var entries []*UserEntry
+	for rows.Next() {
+		var entry UserEntry
+		err := rows.Scan(&entry.uuid,
+			&entry.username, &entry.password, &entry.email,
+			&entry.createdstamp, &entry.updatedstamp)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan user: %w", err)
+		}
+		entries = append(entries, &entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to iterate users: %w", err)
+	}
+	return entries, nil
 }

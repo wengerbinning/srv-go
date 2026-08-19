@@ -12,5 +12,8 @@ func Default() *Conf {
 	conf.Log.Syslog   = false
 	conf.Log.Systag   = "srv"
 
+	conf.User.Root = "root"
+	conf.User.Default ="default"
+
 	return conf
 }

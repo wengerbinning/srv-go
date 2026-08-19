@@ -18,14 +18,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	sctx, err := environment.PrepareService(conf)
+	srv, err := environment.PrepareService(conf)
 	if err != nil {
 		l.Error( "Prepare error: %v", err)
 		os.Exit(1)
 	}
-	defer sctx.Close()
+	defer srv.Close()
 
-	uctx := sctx.CreateUserContext()
+	uctx := srv.CreateUserContext()
 	user, err := uctx.Registrate("alice", "alice@example.com", "password123")
 	if err != nil {
 		l.Error("Register error: %v", err)

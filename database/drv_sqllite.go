@@ -1,36 +1,26 @@
 package database
 
 import (
-	"database/sql"
-	"errors"
-	"fmt"
 	"os"
+	"fmt"
+	"errors"
+	"database/sql"
 	"path/filepath"
 
 	_ "modernc.org/sqlite"
 )
 
-type SqliteDriver struct{}
+type DataBaseDriver struct {}
 
-func NewSqliteDriver() *SqliteDriver {
-	return &SqliteDriver{}
+func (d *DataBaseDriver) drvCreateDatabase() {
+	fmt.Println("SqliteDriver: CreateDatabase called (auto-created on Init)")
 }
 
-func SQLliteConf(format string, v ...any) (*Conf, error) {
-	path := fmt.Sprintf(format, v...)
-	if path == "" {
-		return nil, fmt.Errorf("database path is empty")
-	}
-	file, err := filepath.Abs(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve db path: %w", err)
-	}
-	return &Conf{ Dbtype: SQLlite,
-		DbPath: filepath.Dir(file), DbName: filepath.Base(file), }, nil
+func (d *DataBaseDriver) drvDeleteDataBase() {
+	fmt.Println("SqliteDriver: DeleteDataBase called")
 }
 
-
-func (d *SqliteDriver) Init(conf *Conf) (*Context, error) {
+func drvSQLliteInit(conf *Conf) (*DataBase, error) {
 	if conf == nil {
 		return nil, fmt.Errorf("database config is nil")
 	}
@@ -39,22 +29,19 @@ func (d *SqliteDriver) Init(conf *Conf) (*Context, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve db path: %w", err)
 	}
-
-	// 确保目录存在
 	if err := os.MkdirAll(path, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create db directory: %w", err)
 	}
 
+	create := false
 	file := filepath.Join(path, conf.DbName)
 	_, err = os.Stat(file)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			fmt.Printf("Database not found at %s, creating...\n", file)
+			create = true
 		} else {
 			return nil, fmt.Errorf("failed to check database: %w", err)
 		}
-	} else {
-		fmt.Printf("Database already exists at %s\n", file)
 	}
 
 	db, err := sql.Open("sqlite", file)
@@ -72,27 +59,37 @@ func (d *SqliteDriver) Init(conf *Conf) (*Context, error) {
 		return nil, fmt.Errorf("failed to init schema: %w", err)
 	}
 
-	return &Context{
+	return &DataBase{
 		Name: conf.DbName,
 		conf: *conf,
-		db:   db,
+		db: db,
+		create: create,
 	}, nil
 }
 
-func (d *SqliteDriver) Exit(ctx *Context) error {
+func drvSQLliteExit(ctx *DataBase) error {
 	if ctx == nil || ctx.db == nil {
 		return nil
 	}
+
 	if err := ctx.db.Close(); err != nil {
 		return fmt.Errorf("failed to close database: %w", err)
 	}
 	return nil
 }
 
-func (d *SqliteDriver) CreateDatabase() {
-	fmt.Println("SqliteDriver: CreateDatabase called (auto-created on Init)")
-}
-
-func (d *SqliteDriver) DeleteDataBase() {
-	fmt.Println("SqliteDriver: DeleteDataBase called")
+func SQLliteConf(format string, v ...any) (*Conf, error) {
+	path := fmt.Sprintf(format, v...)
+	if path == "" {
+		return nil, fmt.Errorf("SQLlite database path is empty!")
+	}
+	file, err := filepath.Abs(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve db path: %w", err)
+	}
+	return &Conf{
+		Dbtype: SQLlite,
+		DbPath: filepath.Dir(file),
+		DbName: filepath.Base(file),
+	}, nil
 }

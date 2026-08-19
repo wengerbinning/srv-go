@@ -7,7 +7,8 @@ config.Conf
 config.Default
 config.Load
 
-database.EnsureDatabase
+database.DataBaseInit
+database.DataBaseExit
 database.UserParam
 database.UserEntry
 database.NewUserParam
