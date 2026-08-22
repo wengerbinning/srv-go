@@ -12,6 +12,9 @@ type Context struct {
 	db   *database.DataBase
 }
 
+// LogIface 返回服务上下文使用的日志接口。
+func (s *Context) LogIface() log.Interface { return s.log }
+
 func logConf(conf *config.Conf) *log.Conf {
 	return &log.Conf{
 		Stdio:   conf.Log.Stdio,

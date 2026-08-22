@@ -15,5 +15,11 @@ func Default() *Conf {
 	conf.User.Root = "root"
 	conf.User.Default ="default"
 
+	conf.Network.Http.Enable = true
+	conf.Network.Http.Listen = "0.0.0.0"
+	conf.Network.Http.Port = "8080"
+	conf.Network.Http.ReadTimeout = "15s"
+	conf.Network.Http.WriteTimeout = "15s"
+
 	return conf
 }

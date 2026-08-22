@@ -79,6 +79,26 @@ func UserCancellate(db *database.DataBase, uuid int64) error {
 	return nil
 }
 
+func UserSearch(db *database.DataBase, param *database.UserParam) ([]*User, error) {
+	entries, err := database.DbUserSearch(db, param)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search users: %w", err)
+	}
+	users := make([]*User, 0, len(entries))
+	for _, e := range entries {
+		users = append(users, dbUser(e))
+	}
+	return users, nil
+}
+
+func UserFetch(db *database.DataBase, uuid int64) (*User, error) {
+	entry, err := database.DbUserGet(db, uuid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user: %w", err)
+	}
+	return dbUser(entry), nil
+}
+
 func (s *UserContext) Registrate(username, email, password string) (*User, error) {
 	return UserRegistrate(s.db, username, email, password)
 }
@@ -89,4 +109,12 @@ func (s *UserContext) Changerate(uuid int64, username, email, password string) (
 
 func (s *UserContext) Cancellate(uuid int64) error {
 	return UserCancellate(s.db, uuid)
+}
+
+func (s *UserContext) Search(param *database.UserParam) ([]*User, error) {
+	return UserSearch(s.db, param)
+}
+
+func (s *UserContext) Fetch(uuid int64) (*User, error) {
+	return UserFetch(s.db, uuid)
 }

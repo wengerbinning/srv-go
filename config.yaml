@@ -9,3 +9,11 @@ log:
   file_path: "etc/log"
   syslog: false
   systag: "srv"
+
+network:
+  http:
+    enable: true
+    listen: "0.0.0.0"
+    port: "8080"
+    read_timeout: "15s"
+    write_timeout: "15s"

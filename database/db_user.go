@@ -165,3 +165,21 @@ func DbUserSearch(ctx *DataBase, param *UserParam) ([]*UserEntry, error) {
 	}
 	return entries, nil
 }
+
+func DbUserGet(ctx *DataBase, uuid int64) (*UserEntry, error) {
+	row := ctx.db.QueryRow(
+		"SELECT id, username, password, email, createdstamp, updatedstamp FROM users WHERE id = ?",
+		uuid,
+	)
+	var entry UserEntry
+	err := row.Scan(&entry.uuid,
+		&entry.username, &entry.password, &entry.email,
+		&entry.createdstamp, &entry.updatedstamp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user %d not found", uuid)
+		}
+		return nil, fmt.Errorf("failed to query user: %w", err)
+	}
+	return &entry, nil
+}

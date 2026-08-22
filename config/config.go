@@ -25,6 +25,16 @@ type Conf struct {
 		Root      string `yaml:"root"`
 		Default   string `yaml:"default"`
 	}
+
+	Network struct {
+		Http struct {
+			Enable       bool   `yaml:"enable"`
+			Listen       string `yaml:"listen"`
+			Port         string `yaml:"port"`
+			ReadTimeout  string `yaml:"read_timeout"`
+			WriteTimeout string `yaml:"write_timeout"`
+		} `yaml:"http"`
+	} `yaml:"network"`
 }
 
 func Load(path string) (*Conf, error) {
