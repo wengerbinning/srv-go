@@ -1,0 +1,14 @@
+
+
+
+* NULL
+* INTEGER
+* REAL
+* TEXT
+* BLOB
+
+
+
+
+* 存储类(Storage Classes) - 5种
+* 亲和性(Type Affinity) -

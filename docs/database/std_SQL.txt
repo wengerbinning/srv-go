@@ -1,0 +1,79 @@
+标准化的查询语言 - 用来操作关系型数据库
+
+
+
+Schema - 数据库的结构定义
+
+* 有哪些表（Table）
+* 每张表有哪些列（Column）、列的数据类型
+* 主键（Primary Key）、外键（Foreign Key）
+* 索引（Index）、约束（Constraint）
+* 视图（View）、存储过程、触发器
+
+
+DDL（Data Definition Language，数据定义语言）
+DML（Data Manipulation Language）
+
+
+```
+CREATE TABLE users (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    name    VARCHAR(50) NOT NULL,
+    age     INT,
+    email   VARCHAR(100) UNIQUE
+);
+```
+
+
+
+
+* CHAR(n)
+* VARCHAR(n)
+
+* INTEGER
+* INT
+
+
+* FLOAT
+* DOUBLE
+* DECIMAL
+
+* DATE
+* TIME
+* DATETIME
+
+* BOOLEAN
+
+
+
+
+
+CREATE TABLE <NAME>(<COLM> <TYPE> [COND], ..., [COND]);
+
+
+
+
+
+* 表名称:
+* 列名称:
+* 列类型:
+* 列约束:
+* 表约束:
+
+
+
+* [NOT NULL]
+* [DEFAULT 默认值]
+* [PRIMARY KEY]
+* [UNIQUE]
+* [CHECK (条件)]
+* [AUTOINCREMENT | AUTO_INCREMENT]
+
+
+
+* [PRIMARY KEY (列1, 列2)],
+* [UNIQUE (列1, 列2)]
+* [CHECK (条件)]
+* [FOREIGN KEY (列) REFERENCES 其他表(列)]
+* [ON DELETE 动作]
+* [ON UPDATE 动作]
