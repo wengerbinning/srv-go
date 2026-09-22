@@ -1,0 +1,32 @@
+User Schema v0.0
+----------------
+* 用户索引(id) - 主键,自增
+* 用户名称(username) -
+* 用户密码(password) -
+* 创建时间(createdstamp) -
+* 更新时间(updatedstamp) -
+
+- 增加用户信息: 用户注册
+
+User Schema v0.1
+----------------
+* 用户索引(id) - 主键,自增
+* 用户名称(username) -
+* 用户密码(password) -
+* 创建时间(createdstamp) -
+* 更新时间(updatedstamp) -
+* 电子邮件(email) -
+
+- 增加关联账号: 重置密码
+
+User Schema v0.2
+----------------
+* 用户索引(id) - 主键,自增
+* 用户名称(username) -
+* 用户密码(password) -
+* 用户属性(attribute) - (root, first, active)
+* 创建时间(createdstamp) -
+* 更新时间(updatedstamp) -
+* 电子邮件(email) -
+
+- 增加用户属性: 超级用户/激活账号
